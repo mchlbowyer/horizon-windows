@@ -5,6 +5,7 @@ namespace Laravel\Horizon\Tests\Feature;
 use Laravel\Horizon\SupervisorFactory;
 use Laravel\Horizon\Tests\Feature\Fixtures\FakeSupervisorFactory;
 use Laravel\Horizon\Tests\IntegrationTest;
+use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
 
 class SupervisorCommandTest extends IntegrationTest
 {
@@ -25,6 +26,7 @@ class SupervisorCommandTest extends IntegrationTest
         $this->assertFalse($factory->supervisor->working);
     }
 
+    #[RequiresOperatingSystem('^(?!WIN)')]
     public function test_supervisor_command_can_set_process_niceness()
     {
         $this->app->instance(SupervisorFactory::class, $factory = new FakeSupervisorFactory);
