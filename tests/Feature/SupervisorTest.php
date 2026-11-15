@@ -42,7 +42,8 @@ class SupervisorTest extends IntegrationTest
         if ($this->supervisor) {
             $this->supervisor->processes()->each->terminate();
 
-            while (count($this->supervisor->processes()->filter->isRunning()) > 0) {
+            while (count($this->supervisor->processes()->filter->isRunning()) > 0 ||
+                count($this->supervisor->terminatingProcesses()) > 0) {
                 usleep(250 * 1000);
             }
         }
