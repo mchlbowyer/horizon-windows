@@ -17,6 +17,7 @@ trait ServiceBindings
         Listeners\TrimFailedJobs::class,
         Listeners\TrimMonitoredJobs::class,
         Lock::class,
+        Contracts\ProcessControl::class => PosixProcessControl::class,
         Stopwatch::class,
 
         // Repository services...

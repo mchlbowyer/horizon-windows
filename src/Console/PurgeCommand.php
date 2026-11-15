@@ -5,6 +5,7 @@ namespace Laravel\Horizon\Console;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 use Laravel\Horizon\Contracts\MasterSupervisorRepository;
+use Laravel\Horizon\Contracts\ProcessControl;
 use Laravel\Horizon\Contracts\ProcessRepository;
 use Laravel\Horizon\Contracts\SupervisorRepository;
 use Laravel\Horizon\MasterSupervisor;
@@ -45,23 +46,31 @@ class PurgeCommand extends Command
     private $inspector;
 
     /**
+     * @var \Laravel\Horizon\Contracts\ProcessControl
+     */
+    private $control;
+
+    /**
      * Create a new command instance.
      *
      * @param  \Laravel\Horizon\Contracts\SupervisorRepository  $supervisors
      * @param  \Laravel\Horizon\Contracts\ProcessRepository  $processes
      * @param  \Laravel\Horizon\ProcessInspector  $inspector
+     * @param  \Laravel\Horizon\Contracts\ProcessControl  $control
      * @return void
      */
     public function __construct(
         SupervisorRepository $supervisors,
         ProcessRepository $processes,
         ProcessInspector $inspector,
+        ProcessControl $control,
     ) {
         parent::__construct();
 
         $this->supervisors = $supervisors;
         $this->processes = $processes;
         $this->inspector = $inspector;
+        $this->control = $control;
     }
 
     /**
@@ -102,7 +111,7 @@ class PurgeCommand extends Command
             ->whenNotEmpty(fn () => $this->components->info('Sending TERM signal to expired processes of ['.$master.']'))
             ->each(function ($processId) use ($master, $signal) {
                 $this->components->task("Process: $processId", function () use ($processId, $signal) {
-                    exec("kill -s {$signal} {$processId}");
+                    $this->control->signal($processId, $signal);
                 });
 
                 $this->processes->forgetOrphans($master, [$processId]);
@@ -128,11 +137,11 @@ class PurgeCommand extends Command
                 $result = true;
 
                 $this->components->task("Process: $processId", function () use ($processId, $signal, &$result) {
-                    return $result = posix_kill($processId, $signal);
+                    return $result = $this->control->signal($processId, $signal);
                 });
 
                 if (! $result) {
-                    $this->components->error("Failed to kill orphan process: {$processId} (".posix_strerror(posix_get_last_error()).')');
+                    $this->components->error("Failed to kill orphan process: {$processId} (".$this->control->lastError().')');
                 }
             })->whenNotEmpty(fn () => $this->output->writeln(''));
     }

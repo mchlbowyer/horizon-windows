@@ -3,6 +3,7 @@
 namespace Laravel\Horizon;
 
 use Illuminate\Support\Arr;
+use Laravel\Horizon\Contracts\ProcessControl;
 
 trait ListensForSignals
 {
@@ -20,23 +21,20 @@ trait ListensForSignals
      */
     protected function listenForSignals()
     {
-        pcntl_async_signals(true);
-
-        pcntl_signal(SIGTERM, function () {
-            $this->pendingSignals['terminate'] = 'terminate';
-        });
-
-        pcntl_signal(SIGUSR1, function () {
-            $this->pendingSignals['restart'] = 'restart';
-        });
-
-        pcntl_signal(SIGUSR2, function () {
-            $this->pendingSignals['pause'] = 'pause';
-        });
-
-        pcntl_signal(SIGCONT, function () {
-            $this->pendingSignals['continue'] = 'continue';
-        });
+        app(ProcessControl::class)->listen([
+            SIGTERM => function () {
+                $this->pendingSignals['terminate'] = 'terminate';
+            },
+            SIGUSR1 => function () {
+                $this->pendingSignals['restart'] = 'restart';
+            },
+            SIGUSR2 => function () {
+                $this->pendingSignals['pause'] = 'pause';
+            },
+            SIGCONT => function () {
+                $this->pendingSignals['continue'] = 'continue';
+            },
+        ]);
     }
 
     /**

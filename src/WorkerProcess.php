@@ -4,6 +4,7 @@ namespace Laravel\Horizon;
 
 use Carbon\CarbonImmutable;
 use Closure;
+use Laravel\Horizon\Contracts\ProcessControl;
 use Laravel\Horizon\Events\UnableToLaunchProcess;
 use Laravel\Horizon\Events\WorkerProcessRestarting;
 use Symfony\Component\Process\Exception\ExceptionInterface;
@@ -138,7 +139,7 @@ class WorkerProcess
     protected function sendSignal($signal)
     {
         try {
-            $this->process->signal($signal);
+            app(ProcessControl::class)->signalProcess($this->process, $signal);
         } catch (ExceptionInterface $e) {
             if ($this->process->isRunning()) {
                 throw $e;
