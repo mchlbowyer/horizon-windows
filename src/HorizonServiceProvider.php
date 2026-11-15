@@ -200,6 +200,10 @@ class HorizonServiceProvider extends ServiceProvider
                 ? $this->app->singleton($value)
                 : $this->app->singleton($key, $value);
         }
+
+        $this->app->singleton(Contracts\ProcessControl::class, PHP_OS_FAMILY === 'Windows'
+            ? WindowsProcessControl::class
+            : PosixProcessControl::class);
     }
 
     /**

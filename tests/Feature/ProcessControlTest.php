@@ -5,19 +5,24 @@ namespace Laravel\Horizon\Tests\Feature;
 use Illuminate\Support\Str;
 use Laravel\Horizon\Contracts\ProcessControl;
 use Laravel\Horizon\Contracts\SupervisorRepository;
+use Laravel\Horizon\Exec;
 use Laravel\Horizon\MasterSupervisor;
 use Laravel\Horizon\PhpBinary;
 use Laravel\Horizon\PosixProcessControl;
 use Laravel\Horizon\SupervisorOptions;
 use Laravel\Horizon\SystemProcessCounter;
 use Laravel\Horizon\Tests\IntegrationTest;
+use Laravel\Horizon\WindowsProcessControl;
 use Mockery;
 
 class ProcessControlTest extends IntegrationTest
 {
-    public function test_posix_process_control_is_bound_by_default()
+    public function test_platform_process_control_is_bound_by_default()
     {
-        $this->assertInstanceOf(PosixProcessControl::class, resolve(ProcessControl::class));
+        $this->assertInstanceOf(
+            PHP_OS_FAMILY === 'Windows' ? WindowsProcessControl::class : PosixProcessControl::class,
+            resolve(ProcessControl::class)
+        );
     }
 
     public function test_supervisor_commands_send_signals_through_process_control()
@@ -75,6 +80,8 @@ class ProcessControlTest extends IntegrationTest
 
     public function test_posix_command_strings_are_unchanged()
     {
+        $this->app->instance(ProcessControl::class, new PosixProcessControl(new Exec));
+
         $options = new SupervisorOptions('name', 'redis');
 
         $this->assertStringStartsWith('exec '.PhpBinary::path().' artisan horizon:work', $options->toWorkerCommand());
