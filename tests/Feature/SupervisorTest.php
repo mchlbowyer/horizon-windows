@@ -69,7 +69,7 @@ class SupervisorTest extends IntegrationTest
         $this->assertCount(1, $supervisor->processes());
 
         $host = MasterSupervisor::name();
-        $this->assertSame(
+        $this->assertCommandLine(
             'exec '.$this->phpBinary.' worker.php redis --name=default --supervisor='.$host.':name --backoff=0 --max-time=0 --max-jobs=0 --memory=128 --queue="default" --sleep=3 --timeout=60 --tries=0 --rest=0',
             $supervisor->processes()[0]->getCommandLine()
         );
@@ -87,12 +87,12 @@ class SupervisorTest extends IntegrationTest
 
         $host = MasterSupervisor::name();
 
-        $this->assertSame(
+        $this->assertCommandLine(
             'exec '.$this->phpBinary.' worker.php redis --name=default --supervisor='.$host.':name --backoff=0 --max-time=0 --max-jobs=0 --memory=128 --queue="first" --sleep=3 --timeout=60 --tries=0 --rest=0',
             $supervisor->processes()[0]->getCommandLine()
         );
 
-        $this->assertSame(
+        $this->assertCommandLine(
             'exec '.$this->phpBinary.' worker.php redis --name=default --supervisor='.$host.':name --backoff=0 --max-time=0 --max-jobs=0 --memory=128 --queue="second" --sleep=3 --timeout=60 --tries=0 --rest=0',
             $supervisor->processes()[1]->getCommandLine()
         );
@@ -109,12 +109,12 @@ class SupervisorTest extends IntegrationTest
 
         $host = MasterSupervisor::name();
 
-        $this->assertSame(
+        $this->assertCommandLine(
             'exec '.$this->phpBinary.' worker.php redis --name=default --supervisor='.$host.':name --backoff=0 --max-time=0 --max-jobs=0 --memory=128 --queue="first,second" --sleep=3 --timeout=60 --tries=0 --rest=0',
             $supervisor->processes()[0]->getCommandLine()
         );
 
-        $this->assertSame(
+        $this->assertCommandLine(
             'exec '.$this->phpBinary.' worker.php redis --name=default --supervisor='.$host.':name --backoff=0 --max-time=0 --max-jobs=0 --memory=128 --queue="first,second" --sleep=3 --timeout=60 --tries=0 --rest=0',
             $supervisor->processes()[1]->getCommandLine()
         );

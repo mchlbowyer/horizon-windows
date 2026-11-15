@@ -7,6 +7,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Queue\QueueManager;
 use Illuminate\Queue\Worker;
 use Illuminate\Queue\WorkerOptions;
+use Laravel\Horizon\Contracts\ProcessControl;
 use Laravel\Horizon\Tests\RedisClusterHelper;
 
 use function Orchestra\Testbench\container;
@@ -30,6 +31,9 @@ $worker = new Worker(
 if (in_array('--paused', $_SERVER['argv'])) {
     $worker->paused = true;
 }
+
+// Let the worker receive signals where the platform cannot deliver them...
+$app->make(ProcessControl::class)->watchWorker($worker, 60);
 
 // Start the daemon loop.
 $worker->daemon(
