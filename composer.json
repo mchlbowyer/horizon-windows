@@ -12,8 +12,6 @@
     "require": {
         "php": "^8.0",
         "ext-json": "*",
-        "ext-pcntl": "*",
-        "ext-posix": "*",
         "illuminate/contracts": "^9.21|^10.0|^11.0|^12.0|^13.0",
         "illuminate/queue": "^9.21|^10.0|^11.0|^12.0|^13.0",
         "illuminate/support": "^9.21|^10.0|^11.0|^12.0|^13.0",
@@ -32,6 +30,8 @@
         "predis/predis": "^1.1|^2.0|^3.0"
     },
     "suggest": {
+        "ext-pcntl": "Required on Linux and macOS to manage worker processes with signals (not available on Windows).",
+        "ext-posix": "Required on Linux and macOS to manage worker processes with signals (not available on Windows).",
         "ext-redis": "Required to use the Redis PHP driver.",
         "predis/predis": "Required when not using the Redis PHP driver (^1.1|^2.0|^3.0)."
     },
