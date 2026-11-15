@@ -9,6 +9,7 @@ use Illuminate\Contracts\Cache\Factory as CacheFactory;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Laravel\Horizon\Contracts\HorizonCommandQueue;
 use Laravel\Horizon\Contracts\Pausable;
+use Laravel\Horizon\Contracts\ProcessControl;
 use Laravel\Horizon\Contracts\Restartable;
 use Laravel\Horizon\Contracts\SupervisorRepository;
 use Laravel\Horizon\Contracts\Terminable;
@@ -315,7 +316,7 @@ class Supervisor implements Pausable, Restartable, Terminable
      */
     protected function ensureParentIsRunning()
     {
-        if ($this->options->parentId > 1 && posix_getppid() <= 1) {
+        if ($this->options->parentId > 1 && ! app(ProcessControl::class)->parentIsRunning()) {
             $this->terminate();
         }
     }

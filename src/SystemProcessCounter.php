@@ -2,7 +2,7 @@
 
 namespace Laravel\Horizon;
 
-use Symfony\Component\Process\Process;
+use Laravel\Horizon\Contracts\ProcessControl;
 
 class SystemProcessCounter
 {
@@ -21,10 +21,8 @@ class SystemProcessCounter
      */
     public function get($name)
     {
-        $process = Process::fromShellCommandline('exec ps aux | grep '.static::$command, null, ['COLUMNS' => '2000']);
+        $listing = app(ProcessControl::class)->listing(static::$command);
 
-        $process->run();
-
-        return substr_count($process->getOutput(), 'supervisor='.$name);
+        return substr_count($listing, 'supervisor='.$name);
     }
 }

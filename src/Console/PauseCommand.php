@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Laravel\Horizon\Contracts\MasterSupervisorRepository;
+use Laravel\Horizon\Contracts\ProcessControl;
 use Laravel\Horizon\MasterSupervisor;
 use Symfony\Component\Console\Attribute\AsCommand;
 
@@ -30,9 +31,10 @@ class PauseCommand extends Command
      * Execute the console command.
      *
      * @param  \Laravel\Horizon\Contracts\MasterSupervisorRepository  $masters
+     * @param  \Laravel\Horizon\Contracts\ProcessControl  $control
      * @return void
      */
-    public function handle(MasterSupervisorRepository $masters)
+    public function handle(MasterSupervisorRepository $masters, ProcessControl $control)
     {
         $masters = collect($masters->all())
             ->filter(fn ($master) => Str::startsWith($master->name, MasterSupervisor::basename()))
@@ -41,15 +43,15 @@ class PauseCommand extends Command
         collect(Arr::pluck($masters, 'pid'))
             ->whenNotEmpty(fn () => $this->components->info('Sending USR2 signal to processes.'))
             ->whenEmpty(fn () => $this->components->info('No processes to pause.'))
-            ->each(function ($processId) {
+            ->each(function ($processId) use ($control) {
                 $result = true;
 
-                $this->components->task("Process: $processId", function () use ($processId, &$result) {
-                    return $result = posix_kill($processId, SIGUSR2);
+                $this->components->task("Process: $processId", function () use ($processId, $control, &$result) {
+                    return $result = $control->signal($processId, SIGUSR2);
                 });
 
                 if (! $result) {
-                    $this->components->error("Failed to kill process: {$processId} (".posix_strerror(posix_get_last_error()).')');
+                    $this->components->error("Failed to kill process: {$processId} (".$control->lastError().')');
                 }
             })->whenNotEmpty(fn () => $this->output->writeln(''));
     }

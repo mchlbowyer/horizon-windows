@@ -8,6 +8,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\InteractsWithTime;
 use Illuminate\Support\Str;
 use Laravel\Horizon\Contracts\MasterSupervisorRepository;
+use Laravel\Horizon\Contracts\ProcessControl;
 use Laravel\Horizon\MasterSupervisor;
 use Symfony\Component\Console\Attribute\AsCommand;
 
@@ -36,9 +37,10 @@ class TerminateCommand extends Command
      *
      * @param  \Illuminate\Contracts\Cache\Factory  $cache
      * @param  \Laravel\Horizon\Contracts\MasterSupervisorRepository  $masters
+     * @param  \Laravel\Horizon\Contracts\ProcessControl  $control
      * @return void
      */
-    public function handle(CacheFactory $cache, MasterSupervisorRepository $masters)
+    public function handle(CacheFactory $cache, MasterSupervisorRepository $masters, ProcessControl $control)
     {
         if (config('horizon.fast_termination')) {
             $cache->forever(
@@ -53,15 +55,15 @@ class TerminateCommand extends Command
         collect(Arr::pluck($masters, 'pid'))
             ->whenNotEmpty(fn () => $this->components->info('Sending TERM signal to processes.'))
             ->whenEmpty(fn () => $this->components->info('No processes to terminate.'))
-            ->each(function ($processId) {
+            ->each(function ($processId) use ($control) {
                 $result = true;
 
-                $this->components->task("Process: $processId", function () use ($processId, &$result) {
-                    return $result = posix_kill($processId, SIGTERM);
+                $this->components->task("Process: $processId", function () use ($processId, $control, &$result) {
+                    return $result = $control->signal($processId, SIGTERM);
                 });
 
                 if (! $result) {
-                    $this->components->error("Failed to kill process: {$processId} (".posix_strerror(posix_get_last_error()).')');
+                    $this->components->error("Failed to kill process: {$processId} (".$control->lastError().')');
                 }
             })->whenNotEmpty(fn () => $this->output->writeln(''));
 
