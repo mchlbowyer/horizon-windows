@@ -3,6 +3,7 @@
 namespace Laravel\Horizon\Console;
 
 use Illuminate\Queue\Console\WorkCommand as BaseWorkCommand;
+use Laravel\Horizon\Contracts\ProcessControl;
 
 class WorkCommand extends BaseWorkCommand
 {
@@ -49,6 +50,10 @@ class WorkCommand extends BaseWorkCommand
         if (config('horizon.fast_termination')) {
             ignore_user_abort(true);
         }
+
+        $this->laravel->make(ProcessControl::class)->watchWorker(
+            $this->worker, (int) $this->option('timeout')
+        );
 
         parent::handle();
     }

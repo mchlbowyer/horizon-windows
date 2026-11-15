@@ -44,6 +44,8 @@ trait ListensForSignals
      */
     protected function processPendingSignals()
     {
+        app(ProcessControl::class)->dispatch();
+
         while ($this->pendingSignals) {
             $signal = Arr::first($this->pendingSignals);
 
