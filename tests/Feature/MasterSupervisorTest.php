@@ -160,6 +160,7 @@ class MasterSupervisorTest extends IntegrationTest
         $master->supervisors[] = new SupervisorProcess($this->supervisorOptions(), $process = Mockery::mock());
         $process->shouldReceive('isStarted')->andReturn(true);
         $process->shouldReceive('isRunning')->andReturn(true);
+        $process->shouldReceive('getCommandLine')->andReturn('');
         $process->shouldReceive('signal');
 
         $master->loop();

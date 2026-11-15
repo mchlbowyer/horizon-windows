@@ -3,8 +3,10 @@
 namespace Laravel\Horizon\Tests\Feature;
 
 use Laravel\Horizon\Contracts\MasterSupervisorRepository;
+use Laravel\Horizon\Contracts\ProcessControl;
 use Laravel\Horizon\Contracts\SupervisorRepository;
 use Laravel\Horizon\Exec;
+use Laravel\Horizon\PosixProcessControl;
 use Laravel\Horizon\ProcessInspector;
 use Laravel\Horizon\Tests\IntegrationTest;
 use Mockery;
@@ -19,6 +21,7 @@ class ProcessInspectorTest extends IntegrationTest
         $exec->shouldReceive('run')->with('pgrep -P 2')->andReturn([4]);
         $exec->shouldReceive('run')->with('pgrep -P 3')->andReturn([5]);
         $this->app->instance(Exec::class, $exec);
+        $this->app->instance(ProcessControl::class, new PosixProcessControl($exec));
 
         $supervisors = Mockery::mock(SupervisorRepository::class);
         $supervisors->shouldReceive('all')->andReturn([
