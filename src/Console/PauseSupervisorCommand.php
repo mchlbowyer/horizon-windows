@@ -4,6 +4,7 @@ namespace Laravel\Horizon\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
+use Laravel\Horizon\Contracts\ProcessControl;
 use Laravel\Horizon\Contracts\SupervisorRepository;
 use Laravel\Horizon\MasterSupervisor;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -30,9 +31,10 @@ class PauseSupervisorCommand extends Command
      * Execute the console command.
      *
      * @param  \Laravel\Horizon\Contracts\SupervisorRepository  $supervisors
+     * @param  \Laravel\Horizon\Contracts\ProcessControl  $control
      * @return int|void
      */
-    public function handle(SupervisorRepository $supervisors)
+    public function handle(SupervisorRepository $supervisors, ProcessControl $control)
     {
         $processId = optional(collect($supervisors->all())->first(function ($supervisor) {
             return Str::startsWith($supervisor->name, MasterSupervisor::basename())
@@ -47,8 +49,8 @@ class PauseSupervisorCommand extends Command
 
         $this->components->info("Sending USR2 signal to process: {$processId}");
 
-        if (! posix_kill($processId, SIGUSR2)) {
-            $this->components->error("Failed to send USR2 signal to process: {$processId} (".posix_strerror(posix_get_last_error()).')');
+        if (! $control->signal($processId, SIGUSR2)) {
+            $this->components->error("Failed to send USR2 signal to process: {$processId} (".$control->lastError().')');
         }
     }
 }

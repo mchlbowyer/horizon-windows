@@ -4,6 +4,7 @@ namespace Laravel\Horizon\Console;
 
 use Illuminate\Console\Command;
 use Laravel\Horizon\Contracts\MasterSupervisorRepository;
+use Laravel\Horizon\Contracts\ProcessControl;
 use Laravel\Horizon\MasterSupervisor;
 use Laravel\Horizon\ProvisioningPlan;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -57,15 +58,15 @@ class HorizonCommand extends Command
 
         $this->components->info('Horizon started successfully.');
 
-        pcntl_async_signals(true);
+        $this->laravel->make(ProcessControl::class)->listen([
+            SIGINT => function () use ($master) {
+                $this->output->writeln('');
 
-        pcntl_signal(SIGINT, function () use ($master) {
-            $this->output->writeln('');
+                $this->components->info('Shutting down.');
 
-            $this->components->info('Shutting down.');
-
-            return $master->terminate();
-        });
+                return $master->terminate();
+            },
+        ]);
 
         $master->monitor();
     }

@@ -4,26 +4,27 @@ namespace Laravel\Horizon;
 
 use Illuminate\Support\Arr;
 use Laravel\Horizon\Contracts\MasterSupervisorRepository;
+use Laravel\Horizon\Contracts\ProcessControl;
 use Laravel\Horizon\Contracts\SupervisorRepository;
 
 class ProcessInspector
 {
     /**
-     * The command executor.
+     * The process control implementation.
      *
-     * @var \Laravel\Horizon\Exec
+     * @var \Laravel\Horizon\Contracts\ProcessControl
      */
-    public $exec;
+    public $control;
 
     /**
      * Create a new process inspector instance.
      *
-     * @param  \Laravel\Horizon\Exec  $exec
+     * @param  \Laravel\Horizon\Contracts\ProcessControl  $control
      * @return void
      */
-    public function __construct(Exec $exec)
+    public function __construct(ProcessControl $control)
     {
-        $this->exec = $exec;
+        $this->control = $control;
     }
 
     /**
@@ -34,8 +35,8 @@ class ProcessInspector
     public function current()
     {
         return array_diff(
-            $this->exec->run('pgrep -f [h]orizon'),
-            $this->exec->run('pgrep -f horizon:purge')
+            $this->control->find('[h]orizon'),
+            $this->control->find('horizon:purge')
         );
     }
 
@@ -60,7 +61,7 @@ class ProcessInspector
             ->pluck('pid')
             ->pipe(function ($processes) {
                 $processes->each(function ($process) use (&$processes) {
-                    $processes = $processes->merge($this->exec->run("pgrep -P {$process}"));
+                    $processes = $processes->merge($this->control->children($process));
                 });
 
                 return $processes;

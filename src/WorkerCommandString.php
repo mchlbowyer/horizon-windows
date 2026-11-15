@@ -2,6 +2,8 @@
 
 namespace Laravel\Horizon;
 
+use Laravel\Horizon\Contracts\ProcessControl;
+
 class WorkerCommandString
 {
     /**
@@ -19,7 +21,7 @@ class WorkerCommandString
      */
     public static function fromOptions(SupervisorOptions $options)
     {
-        $command = str_replace('@php', PhpBinary::path(), static::$command);
+        $command = str_replace('@php', PhpBinary::path(), app(ProcessControl::class)->prepareCommand(static::$command));
 
         return sprintf(
             "%s {$options->connection} %s",
