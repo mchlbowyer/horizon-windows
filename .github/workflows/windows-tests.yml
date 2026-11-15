@@ -1,0 +1,75 @@
+name: windows tests
+
+on:
+  push:
+    branches:
+      - '*.x'
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      ref:
+        description: The git ref to test
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: true
+      matrix:
+        php: [8.4, 8.5]
+        laravel: [12, 13]
+
+    name: Windows - PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip
+          ini-values: error_reporting=E_ALL
+          tools: composer:v2
+          coverage: none
+
+      - name: Confirm pcntl and posix are unavailable
+        shell: pwsh
+        run: |
+          php -r "echo PHP_OS_FAMILY, ' pcntl=', var_export(extension_loaded('pcntl'), true), ' posix=', var_export(extension_loaded('posix'), true), PHP_EOL; exit(extension_loaded('pcntl') || extension_loaded('posix') ? 1 : 0);"
+
+      - name: Install Redis (Memurai)
+        shell: pwsh
+        run: |
+          choco install memurai-developer --no-progress -y
+          for ($i = 0; $i -lt 30; $i++) {
+            try {
+              $client = [System.Net.Sockets.TcpClient]::new('127.0.0.1', 6379)
+              $client.Close()
+              Write-Host 'Redis is accepting connections on 6379'
+              exit 0
+            } catch {
+              Start-Sleep -Seconds 1
+            }
+          }
+          Write-Error 'Redis did not start on 6379'
+          exit 1
+
+      - name: Install dependencies
+        run: |
+          composer update --prefer-dist --no-interaction --no-progress --with="illuminate/contracts:^${{ matrix.laravel }}"
+
+      - name: Execute tests
+        run: vendor/bin/phpunit --fail-on-risky --fail-on-warning --stop-on-error --stop-on-failure --fail-on-deprecation
