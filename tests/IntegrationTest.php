@@ -139,4 +139,28 @@ abstract class IntegrationTest extends TestCase
 
         Redis::clearResolvedInstances();
     }
+
+    /**
+     * Assert that a child process command line matches the expected command.
+     *
+     * On Windows, Horizon removes the "exec" prefix and gives every child a
+     * Horizon process ID that is unique to the process being launched.
+     *
+     * @param  string  $expected
+     * @param  string  $actual
+     * @return void
+     */
+    protected function assertCommandLine($expected, $actual)
+    {
+        if (PHP_OS_FAMILY !== 'Windows') {
+            $this->assertSame($expected, $actual);
+
+            return;
+        }
+
+        $this->assertMatchesRegularExpression(
+            '/^set "HORIZON_PROCESS_ID=[0-9a-f]{16}" && '.preg_quote(preg_replace('/^exec /', '', $expected), '/').'$/',
+            $actual
+        );
+    }
 }
