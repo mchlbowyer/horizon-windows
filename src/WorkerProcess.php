@@ -87,6 +87,8 @@ class WorkerProcess
      */
     public function monitor()
     {
+        app(ProcessControl::class)->monitorProcess($this->process);
+
         if ($this->process->isRunning() || ($this->coolingDown() && $this->process->getExitCode() !== 0)) {
             return;
         }
