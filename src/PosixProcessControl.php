@@ -41,6 +41,16 @@ class PosixProcessControl implements ProcessControl
     }
 
     /**
+     * Run the handlers for any signals received since the last dispatch.
+     *
+     * @return void
+     */
+    public function dispatch()
+    {
+        //
+    }
+
+    /**
      * Send the given signal to the process with the given ID.
      *
      * @param  int  $processId
@@ -79,9 +89,10 @@ class PosixProcessControl implements ProcessControl
     /**
      * Determine if the parent of the current process is still running.
      *
+     * @param  int  $parentId
      * @return bool
      */
-    public function parentIsRunning()
+    public function parentIsRunning($parentId)
     {
         return posix_getppid() > 1;
     }
@@ -132,5 +143,28 @@ class PosixProcessControl implements ProcessControl
     public function prepareCommand($command)
     {
         return $command;
+    }
+
+    /**
+     * Inspect the given child process during a supervisor loop.
+     *
+     * @param  \Symfony\Component\Process\Process  $process
+     * @return void
+     */
+    public function monitorProcess($process)
+    {
+        //
+    }
+
+    /**
+     * Prepare the given queue worker to respond to process signals.
+     *
+     * @param  \Illuminate\Queue\Worker  $worker
+     * @param  int  $timeout
+     * @return void
+     */
+    public function watchWorker($worker, $timeout)
+    {
+        //
     }
 }

@@ -316,7 +316,7 @@ class Supervisor implements Pausable, Restartable, Terminable
      */
     protected function ensureParentIsRunning()
     {
-        if ($this->options->parentId > 1 && ! app(ProcessControl::class)->parentIsRunning()) {
+        if ($this->options->parentId > 1 && ! app(ProcessControl::class)->parentIsRunning($this->options->parentId)) {
             $this->terminate();
         }
     }
