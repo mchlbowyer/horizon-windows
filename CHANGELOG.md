@@ -1,6 +1,22 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/horizon/compare/v5.51.0.1...5.x)
+## [Unreleased](https://github.com/laravel/horizon/compare/v5.51.0.2...5.x)
+
+## [v5.51.0.2](https://github.com/laravel/horizon/compare/v5.51.0.1...v5.51.0.2) - 2026-11-16
+
+Bug-fix release for the 5.51 line (Horizon v5.51.0 with native Windows support, for Laravel 9–13 on PHP 8.0+).
+
+- **Restarted workers no longer receive stale signals.** On Windows, a worker that crashes and restarts gets a fresh process ID and mailbox, so a pause or terminate sent to the old process can't reach its replacement. This matches Unix behaviour. Signals sent before a worker's first start are still delivered.
+- **The supervisor test teardown is now bounded,** so a flushed Redis can no longer hang the test suite.
+
+Linux and macOS behaviour is unchanged.
+
+```
+composer require mchlbowyer/horizon-windows:^5.51
+
+
+```
+See the README for installation details and known limitations.
 
 ## [v5.51.0.1](https://github.com/laravel/horizon/compare/v5.51.0...v5.51.0.1) - 2026-11-16
 
@@ -18,10 +34,12 @@ Install from this repository (not on Packagist yet):
 ]
 
 
+
 ```
 ```shell
 composer remove laravel/horizon
 composer require mchlbowyer/horizon-windows:^5.51
+
 
 
 ```
