@@ -95,6 +95,14 @@ interface ProcessControl
     public function monitorProcess($process);
 
     /**
+     * Get the process instance to start in place of the given stopped process.
+     *
+     * @param  \Symfony\Component\Process\Process  $process
+     * @return \Symfony\Component\Process\Process
+     */
+    public function restartProcess($process);
+
+    /**
      * Prepare the given queue worker to respond to process signals.
      *
      * @param  \Illuminate\Queue\Worker  $worker

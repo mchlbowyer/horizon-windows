@@ -107,6 +107,8 @@ class WorkerProcess
             event(new WorkerProcessRestarting($this));
         }
 
+        $this->process = app(ProcessControl::class)->restartProcess($this->process);
+
         $this->start($this->output);
     }
 
