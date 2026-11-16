@@ -322,6 +322,36 @@ class WindowsProcessControl implements ProcessControl
     }
 
     /**
+     * Get the process instance to start in place of the given stopped process.
+     *
+     * A restarted process gets a new Horizon process ID, as it would get a new
+     * process ID on Linux, so that signals sent to the process that stopped
+     * are not delivered to its replacement.
+     *
+     * @param  \Symfony\Component\Process\Process  $process
+     * @return \Symfony\Component\Process\Process
+     */
+    public function restartProcess($process)
+    {
+        if (! $process->isStarted() || ($id = $this->idFor($process)) === null) {
+            return $process;
+        }
+
+        $this->mailbox->reset('id:'.$id);
+
+        $this->connection()->del($this->deadlineKey($id));
+
+        $command = preg_replace(
+            '/'.static::PROCESS_ID.'=[0-9a-f]+/', static::PROCESS_ID.'='.bin2hex(random_bytes(8)), $process->getCommandLine(), 1
+        );
+
+        $replacement = $process::fromShellCommandline($command, $process->getWorkingDirectory(), $process->getEnv())
+            ->setTimeout($process->getTimeout());
+
+        return $process->isOutputDisabled() ? $replacement->disableOutput() : $replacement;
+    }
+
+    /**
      * Prepare the given queue worker to respond to process signals.
      *
      * Signals are read from the mailbox each time the worker loops. A paused
