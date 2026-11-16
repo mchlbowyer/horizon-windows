@@ -1,6 +1,31 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/horizon/compare/v5.51.0...5.x)
+## [Unreleased](https://github.com/laravel/horizon/compare/v5.51.0.1...5.x)
+
+## [v5.51.0.1](https://github.com/laravel/horizon/compare/v5.51.0...v5.51.0.1) - 2026-11-16
+
+First release of the 5.51 maintenance line: Laravel Horizon v5.51.0 with native Windows support, without the `pcntl` or `posix` extensions.
+
+- Based on upstream Horizon v5.51.0, the last release supporting Laravel 9 to 13.
+- Requires PHP 8.0+ and Laravel 9–13, plus Redis.
+- On Linux and macOS it behaves exactly like upstream v5.51.0.
+
+Install from this repository (not on Packagist yet):
+
+```json
+"repositories": [
+    { "type": "vcs", "url": "https://github.com/mchlbowyer/horizon-windows" }
+]
+
+
+```
+```shell
+composer remove laravel/horizon
+composer require mchlbowyer/horizon-windows:^5.51
+
+
+```
+The package replaces `laravel/horizon`, so packages that depend on Horizon still resolve. See the [known limitations on Windows](https://github.com/mchlbowyer/horizon-windows/tree/5.51.x#known-limitations-on-windows) before using it.
 
 ## [v5.51.0](https://github.com/laravel/horizon/compare/v5.50.1...v5.51.0) - 2026-11-02
 
