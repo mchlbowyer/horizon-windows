@@ -39,16 +39,35 @@ class SupervisorTest extends IntegrationTest
     protected function tearDown(): void
     {
         // Terminate all remaining processes and wait for them to exit...
+        $timedOut = false;
+
         if ($this->supervisor) {
             $this->supervisor->processes()->each->terminate();
 
+            $deadline = microtime(true) + 30;
+
             while (count($this->supervisor->processes()->filter->isRunning()) > 0 ||
                 count($this->supervisor->terminatingProcesses()) > 0) {
+                // A worker that never receives its terminate signal would keep this test
+                // waiting forever, so we will stop any stragglers and fail the test...
+                if (microtime(true) >= $deadline) {
+                    $timedOut = true;
+
+                    $this->supervisor->processes()->each->stop();
+                    $this->supervisor->terminatingProcesses()->each(fn ($process) => $process['process']->stop());
+
+                    break;
+                }
+
                 usleep(250 * 1000);
             }
         }
 
         parent::tearDown();
+
+        if ($timedOut) {
+            $this->fail('Worker processes did not exit within 30 seconds of being terminated, so they were stopped.');
+        }
     }
 
     /** @requires extension redis */
