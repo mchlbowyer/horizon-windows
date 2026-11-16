@@ -115,6 +115,57 @@ class WindowsProcessControlTest extends IntegrationTest
         $this->assertTrue($received);
     }
 
+    public function test_restarted_processes_do_not_receive_signals_sent_to_the_process_they_replace()
+    {
+        $control = $this->control();
+        $process = Process::fromShellCommandline($control->prepareCommand('exec echo ok'), null, ['FOO' => 'bar'])
+            ->setTimeout(null)
+            ->disableOutput();
+        $process->run();
+
+        $control->signalProcess($process, SIGTERM);
+        $control->signalProcess($process, SIGUSR2);
+
+        $replacement = $control->restartProcess($process);
+
+        $this->assertNotSame($process, $replacement);
+        $this->assertSame(get_class($process), get_class($replacement));
+        $this->assertNotSame($this->horizonProcessId($process), $this->horizonProcessId($replacement));
+        $this->assertSame(
+            preg_replace('/HORIZON_PROCESS_ID=[0-9a-f]+/', '', $process->getCommandLine()),
+            preg_replace('/HORIZON_PROCESS_ID=[0-9a-f]+/', '', $replacement->getCommandLine())
+        );
+        $this->assertSame(['FOO' => 'bar'], $replacement->getEnv());
+        $this->assertNull($replacement->getTimeout());
+        $this->assertTrue($replacement->isOutputDisabled());
+
+        foreach ([$process, $replacement] as $instance) {
+            putenv(WindowsProcessControl::PROCESS_ID.'='.$this->horizonProcessId($instance));
+
+            $child = $this->control();
+            $received = [];
+            $child->listen([
+                SIGTERM => function () use (&$received) {
+                    $received[] = 'terminate';
+                },
+                SIGUSR2 => function () use (&$received) {
+                    $received[] = 'pause';
+                },
+            ]);
+            $child->dispatch();
+
+            $this->assertSame([], $received);
+        }
+    }
+
+    public function test_processes_that_have_not_started_keep_their_horizon_process_id()
+    {
+        $control = $this->control();
+        $process = Process::fromShellCommandline($control->prepareCommand('exec @php artisan horizon:work'));
+
+        $this->assertSame($process, $control->restartProcess($process));
+    }
+
     public function test_child_processes_include_php_processes_started_through_a_shell()
     {
         $processes = $this->processes();
@@ -243,5 +294,12 @@ class WindowsProcessControlTest extends IntegrationTest
     protected function processes()
     {
         return Mockery::mock(WindowsProcessTable::class);
+    }
+
+    protected function horizonProcessId($process)
+    {
+        preg_match('/HORIZON_PROCESS_ID=([0-9a-f]+)/', $process->getCommandLine(), $matches);
+
+        return $matches[1];
     }
 }
