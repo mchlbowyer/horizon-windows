@@ -60,6 +60,7 @@ Upstream Horizon's process handling is routed through a `ProcessControl` contrac
 - Mailboxes are keyed by process ID. If Windows reuses an ID within the mailbox's 5-minute expiry, a stale signal could reach the new process. Workers are protected by their random launch ID, and every process clears its own mailbox on start, so the risk is small.
 - Flushing Horizon's Redis database also discards any signals that haven't been delivered yet.
 - `fast_termination` hasn't been tested on Windows.
+- Windows can't replace a file that another process has open. If Laravel is rebuilding `bootstrap/cache/services.php` (for example right after `composer update`) while several workers start at once, a worker can fail to boot. Its supervisor starts it again, but running `php artisan optimize:clear` or starting Horizon once before scaling up avoids it.
 
 ## Testing
 
