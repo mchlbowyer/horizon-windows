@@ -52,7 +52,7 @@ jobs:
         uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, fileinfo, libxml, mbstring, redis, zip
+          extensions: dom, curl, fileinfo, libxml, mbstring, pdo_sqlite, redis, sqlite3, zip
           ini-values: error_reporting=E_ALL
           tools: composer:v2
           coverage: none
