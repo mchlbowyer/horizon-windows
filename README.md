@@ -2,7 +2,7 @@
 
 An unofficial fork of [Laravel Horizon](https://github.com/laravel/horizon) that also runs on native Windows PHP, without the `pcntl` or `posix` extensions.
 
-This is the `5.51.x` branch: a maintenance line based on Horizon **v5.51.0**, the last upstream release that supports Laravel 9 to 13. If your application is on Laravel 12 or 13, use the [`5.x` branch](https://github.com/mchlbowyer/horizon-windows/tree/5.x) instead, which follows upstream's latest code.
+This is the `5.51.x` branch: a maintenance line based on Horizon **v5.51.0**, the last upstream release that supports Laravel 9 to 13. If your application is on Laravel 12 or 13, use the [`5.x` branch](https://github.com/mikebowyerdev/horizon-windows/tree/5.x) instead, which follows upstream's latest code.
 
 Horizon's dashboard and configuration are unchanged. On Linux and macOS this fork behaves exactly like upstream Horizon v5.51.0. The Windows support is only used when PHP runs on Windows.
 
@@ -10,7 +10,7 @@ Horizon's dashboard and configuration are unchanged. On Linux and macOS this for
 
 Horizon controls its master, supervisor and worker processes with POSIX signals, which Windows doesn't have. Upstream has [no plans to support Windows](https://github.com/laravel/horizon/issues/170#issuecomment-726074717) and recommends WSL2, and the Laravel team [suggested publishing a fork](https://github.com/laravel/horizon/issues/170#issuecomment-730242788) instead. This is that fork, for people who want to run Horizon in native Windows PHP, for example with Laravel Herd.
 
-This is not an official Laravel package, and the Laravel team doesn't support it. Report problems [here](https://github.com/mchlbowyer/horizon-windows/issues), not on laravel/horizon.
+This is not an official Laravel package, and the Laravel team doesn't support it. Report problems [here](https://github.com/mikebowyerdev/horizon-windows/issues), not on laravel/horizon.
 
 ## Installation
 
@@ -21,7 +21,7 @@ The fork isn't on Packagist yet, so install it from this repository. In your app
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/mchlbowyer/horizon-windows"
+            "url": "https://github.com/mikebowyerdev/horizon-windows"
         }
     ]
 }
@@ -31,7 +31,7 @@ Then swap the packages:
 
 ```shell
 composer remove laravel/horizon
-composer require mchlbowyer/horizon-windows:^5.51
+composer require mikebowyerdev/horizon-windows:^5.51
 ```
 
 The package [replaces](https://getcomposer.org/doc/04-schema.md#replace) `laravel/horizon`, so packages that depend on Horizon still resolve. The namespace (`Laravel\Horizon`), service provider, config file, commands and dashboard are all the same, so nothing else in your application changes. Follow the [Horizon documentation](https://laravel.com/docs/horizon) as normal.
@@ -79,6 +79,6 @@ This branch doesn't sync with upstream automatically: upstream's next releases r
 
 ## Credits and license
 
-Laravel Horizon is created by [Taylor Otwell](https://github.com/taylorotwell) and the Laravel team. All credit for Horizon itself goes to them. This fork is maintained by [Mike Bowyer](https://github.com/mchlbowyer).
+Laravel Horizon is created by [Taylor Otwell](https://github.com/taylorotwell) and the Laravel team. All credit for Horizon itself goes to them. This fork is maintained by [Mike Bowyer](https://github.com/mikebowyerdev).
 
 Like upstream, it's open-source software licensed under the [MIT license](LICENSE.md).
