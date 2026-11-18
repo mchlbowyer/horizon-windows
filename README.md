@@ -8,7 +8,7 @@ Horizon's dashboard and configuration are unchanged. On Linux and macOS this for
 
 Horizon controls its master, supervisor and worker processes with POSIX signals, which Windows doesn't have. Upstream has [no plans to support Windows](https://github.com/laravel/horizon/issues/170#issuecomment-726074717) and recommends WSL2, and the Laravel team [suggested publishing a fork](https://github.com/laravel/horizon/issues/170#issuecomment-730242788) instead. This is that fork, for people who want to run Horizon in native Windows PHP, for example with Laravel Herd.
 
-This is not an official Laravel package, and the Laravel team doesn't support it. Report problems [here](https://github.com/mchlbowyer/horizon-windows/issues), not on laravel/horizon.
+This is not an official Laravel package, and the Laravel team doesn't support it. Report problems [here](https://github.com/mikebowyerdev/horizon-windows/issues), not on laravel/horizon.
 
 ## Installation
 
@@ -19,7 +19,7 @@ The fork isn't on Packagist yet, so install it from this repository. In your app
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/mchlbowyer/horizon-windows"
+            "url": "https://github.com/mikebowyerdev/horizon-windows"
         }
     ]
 }
@@ -29,7 +29,7 @@ Then swap the packages:
 
 ```shell
 composer remove laravel/horizon
-composer require mchlbowyer/horizon-windows:5.x-dev
+composer require mikebowyerdev/horizon-windows:5.x-dev
 ```
 
 The package [replaces](https://getcomposer.org/doc/04-schema.md#replace) `laravel/horizon`, so packages that depend on Horizon still resolve. The namespace (`Laravel\Horizon`), service provider, config file, commands and dashboard are all the same, so nothing else in your application changes. Follow the [Horizon documentation](https://laravel.com/docs/horizon) as normal.
@@ -79,6 +79,6 @@ This fork follows upstream's `5.x` branch, not its tagged releases. `5.x-dev` is
 
 ## Credits and license
 
-Laravel Horizon is created by [Taylor Otwell](https://github.com/taylorotwell) and the Laravel team. All credit for Horizon itself goes to them. This fork is maintained by [Mike Bowyer](https://github.com/mchlbowyer).
+Laravel Horizon is created by [Taylor Otwell](https://github.com/taylorotwell) and the Laravel team. All credit for Horizon itself goes to them. This fork is maintained by [Mike Bowyer](https://github.com/mikebowyerdev).
 
 Like upstream, it's open-source software licensed under the [MIT license](LICENSE.md).
