@@ -12,7 +12,7 @@ Bug-fix release for the 5.51 line (Horizon v5.51.0 with native Windows support, 
 Linux and macOS behaviour is unchanged.
 
 ```
-composer require mchlbowyer/horizon-windows:^5.51
+composer require mikebowyerdev/horizon-windows:^5.51
 
 
 ```
@@ -30,7 +30,7 @@ Install from this repository (not on Packagist yet):
 
 ```json
 "repositories": [
-    { "type": "vcs", "url": "https://github.com/mchlbowyer/horizon-windows" }
+    { "type": "vcs", "url": "https://github.com/mikebowyerdev/horizon-windows" }
 ]
 
 
@@ -38,12 +38,12 @@ Install from this repository (not on Packagist yet):
 ```
 ```shell
 composer remove laravel/horizon
-composer require mchlbowyer/horizon-windows:^5.51
+composer require mikebowyerdev/horizon-windows:^5.51
 
 
 
 ```
-The package replaces `laravel/horizon`, so packages that depend on Horizon still resolve. See the [known limitations on Windows](https://github.com/mchlbowyer/horizon-windows/tree/5.51.x#known-limitations-on-windows) before using it.
+The package replaces `laravel/horizon`, so packages that depend on Horizon still resolve. See the [known limitations on Windows](https://github.com/mikebowyerdev/horizon-windows/tree/5.51.x#known-limitations-on-windows) before using it.
 
 ## [v5.51.0](https://github.com/laravel/horizon/compare/v5.50.1...v5.51.0) - 2026-11-02
 
