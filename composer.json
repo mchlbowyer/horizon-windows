@@ -1,5 +1,5 @@
 {
-    "name": "mchlbowyer/horizon-windows",
+    "name": "mikebowyerdev/horizon-windows",
     "description": "Unofficial fork of Laravel Horizon that also runs on native Windows PHP.",
     "keywords": ["laravel", "queue", "horizon", "windows"],
     "license": "MIT",
